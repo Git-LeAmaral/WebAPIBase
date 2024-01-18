@@ -12,9 +12,33 @@ namespace WebAPIBase.Service.FuncionarioService
             _context = context;
         }
 
-        public Task<ServiceResponse<List<FuncionarioModel>>> CreateFuncionario(FuncionarioModel novoFuncionario)
+        public async Task<ServiceResponse<List<FuncionarioModel>>> CreateFuncionario(FuncionarioModel novoFuncionario)
         {
-            throw new NotImplementedException();
+            ServiceResponse<List<FuncionarioModel>> serviceResponse = new ServiceResponse<List<FuncionarioModel>>();
+
+            try
+            {
+                if (novoFuncionario == null)
+                {
+                    serviceResponse.Dados = null;
+                    serviceResponse.Mensagem = "Informar dados!";
+                    serviceResponse.Sucesso = false;
+
+                    return serviceResponse;
+                }
+
+                _context.Add(novoFuncionario);
+                await _context.SaveChangesAsync();
+
+                serviceResponse.Dados = _context.Funcionarios.ToList();
+
+            } catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Sucesso = false;
+            }
+
+            return serviceResponse;
         }
 
         public Task<ServiceResponse<List<FuncionarioModel>>> DeleteFuncionario(int id)
@@ -22,9 +46,30 @@ namespace WebAPIBase.Service.FuncionarioService
             throw new NotImplementedException();
         }
 
-        public Task<ServiceResponse<FuncionarioModel>> GetFuncionarioById(int id)
+        public async Task<ServiceResponse<FuncionarioModel>> GetFuncionarioById(int id)
         {
-            throw new NotImplementedException();
+            ServiceResponse<FuncionarioModel> serviceResponse = new ServiceResponse<FuncionarioModel>();
+
+            try
+            {
+                FuncionarioModel funcionario = _context.Funcionarios.FirstOrDefault(x => x.Id == id);
+
+                if (funcionario == null)
+                {
+                    serviceResponse.Dados = null;
+                    serviceResponse.Mensagem = "Usuário não localizado!";
+                    serviceResponse.Sucesso = false;
+                }
+
+                serviceResponse.Dados = funcionario;
+
+            } catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Sucesso = false;
+            }
+
+            return serviceResponse;
         }
 
         public async Task<ServiceResponse<List<FuncionarioModel>>> GetFuncionarios()
